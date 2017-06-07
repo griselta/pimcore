@@ -165,7 +165,7 @@ class Service
         // If the document has been set then send the document and the parameters as e-mail. If not sent the default body text.
         if ($document != null) {
             $mail->setDocument($document);
-            $mail->setParams(['element' => $element, 'content' => $note, 'contactInfo' => $users]);
+            $mail->setParams(['element' => $element, 'note' => $note, 'users' => $users]);
         } else {
             $mail->setBodyText($note->getDescription());
         }
