@@ -137,12 +137,13 @@ class Service
      * Sends an email
      * @param array $users
      * @param Element\Note $note
+     * @param \Pimcore\Model\Document $document
      */
-    public static function sendEmailNotification($users, $note)
+    public static function sendEmailNotification($users, $note, \Pimcore\Model\Document\Email $document = null)
     {
         //try {
 
-            $recipients = self::getNotificationUsers($users);
+        $recipients = self::getNotificationUsers($users);
         if (!count($recipients)) {
             return;
         }
@@ -150,24 +151,30 @@ class Service
         $mail = new \Pimcore\Mail();
         foreach ($recipients as $user) {
             /**
-                 * @var $user User
-                 */
-                $mail->addTo($user->getEmail(), $user->getName());
+             * @var $user User
+             */
+            $mail->addTo($user->getEmail(), $user->getName());
         }
 
         $element = Element\Service::getElementById($note->getCtype(), $note->getCid());
 
         $mail->setSubject("[pimcore] {$note->getTitle()}, {$element->getType()} [{$element->getId()}]");
 
-            //TODO decide some body text/html
+        //TODO decide some body text/html
 
+        // If the document has been set then send the document and the parameters as e-mail. If not sent the default body text.
+        if ($document != null) {
+            $mail->setDocument($document);
+            $mail->setParams(['element' => $element, 'content' => $note, 'contactInfo' => $users]);
+        } else {
             $mail->setBodyText($note->getDescription());
+        }
 
         $mail->send();
 
         //} catch(\Exception $e) {
         //    //todo application log
-       // }
+        // }
     }
 
 

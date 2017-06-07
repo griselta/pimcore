@@ -14,6 +14,7 @@
 
 namespace Pimcore\WorkflowManagement\Workflow;
 
+use Pimcore\Mail;
 use Pimcore\Model\Element\AbstractElement;
 use Pimcore\Model\Element\Service;
 use Pimcore\Model\Element\WorkflowState;
@@ -346,7 +347,6 @@ class Manager
         return $availableStatuses;
     }
 
-
     /**
      * Returns whether or not notes are required for a given action on the current object
      * Assumes the action is valid at that point in time
@@ -619,11 +619,18 @@ class Manager
                 $actionNoteData
             );
 
+            $document = null;
+            if (isset($actionConfig['notificationDocument'])) {
+                $documentPath = $actionConfig['notificationDocument'];
+                $document = Document::getByPath($documentPath);
+            }
+
             //notify users
             if (isset($actionConfig['notificationUsers']) && is_array($actionConfig['notificationUsers'])) {
                 Workflow\Service::sendEmailNotification(
                     $actionConfig['notificationUsers'],
-                    $note
+                    $note,
+                    $document
                 );
             }
 
